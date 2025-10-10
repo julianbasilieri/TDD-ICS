@@ -1,0 +1,30 @@
+<div style="font-family: Arial, sans-serif; color: #2E5A1C;">
+    <h1 style="color: #558B2F; text-align: center;">¡Tu reserva está confirmada!</h1>
+    <p style="font-size: 16px;">Hola {{email}},</p>
+    <p style="font-size: 16px;">Tu reserva de entradas para EcoHarmony Park ha sido confirmada. Aquí están los detalles:</p>
+    
+    <h2 style="color: #7CB342;">Detalles de la reserva</h2>
+    <ul style="font-size: 16px; list-style: none; padding: 0;">
+        <li><strong>Código de reserva:</strong> {{reservationCode}}</li>
+        <li><strong>Fecha de visita:</strong> {{visitDate}}</li>
+        <li><strong>Cantidad de entradas:</strong> {{ticketCount}}</li>
+        <li><strong>Tipo de entrada:</strong> {{ticketType}}</li>
+        <li><strong>Total a pagar:</strong> ${{totalAmount}}</li>
+    </ul>
+
+    <div style="background-color: #F1F8E9; padding: 15px; border-radius: 4px; margin: 20px 0;">
+        <p style="margin: 0; color: #33691E;">
+            <strong>Importante:</strong> Presenta este código en boletería para realizar el pago:<br>
+            <span style="font-size: 24px; display: block; text-align: center; margin-top: 10px; font-weight: bold;">{{reservationCode}}</span>
+        </p>
+    </div>
+
+    <p style="font-size: 16px;">Recuerda:</p>
+    <ul style="font-size: 16px;">
+        <li>El pago debe realizarse en efectivo</li>
+        <li>Presenta este email en boletería</li>
+    </ul>
+
+    <p style="font-size: 16px; margin-top: 30px;">Te esperamos en EcoHarmony Park para vivir una experiencia única.</p>
+    <p style="color: #558B2F; font-size: 14px;">Saludos,<br>El equipo de EcoHarmony Park</p>
+</div>
