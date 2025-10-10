@@ -13,15 +13,15 @@ Sistema de gestión de reservas y compra de entradas para EcoHarmony Park.
 ## 📋 Requisitos Previos
 
 - Node.js (versión 18 o superior)
-- npm o yarn
+- npm
 - Cuenta en [EmailJS](https://www.emailjs.com/) para el envío de emails
 
 ## 🚀 Instalación
 
 1. Clonar el repositorio:
 ```bash
-git clone <url-del-repositorio>
-cd ics-tdd
+git clone https://github.com/julianbasilieri/TDD-ICS.git
+cd TDD-ICS
 ```
 
 2. Instalar dependencias:
@@ -50,12 +50,6 @@ VITE_EMAILJS_PUBLIC_KEY="your_public_key"
 Desarrollo:
 ```bash
 npm run dev
-```
-
-Producción:
-```bash
-npm run build
-npm run preview
 ```
 
 ## 📁 Estructura del Proyecto
