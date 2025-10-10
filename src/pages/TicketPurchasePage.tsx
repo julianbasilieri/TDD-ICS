@@ -398,9 +398,14 @@ export function TicketPurchasePage() {
                     <Title order={2} c="green.7" ta="center">
                         ¡Reserva exitosa!
                     </Title>
-                    <Text size="lg" ta="center">
-                        Te hemos enviado un correo electrónico con el código de reserva y los detalles para realizar el pago en boletería.
-                    </Text>
+                    <Stack gap="md" align="center">
+                        <Text size="lg" ta="center">Has reservado:</Text>
+                        <Text fw={500}>{ticketCount} entrada{ticketCount > 1 ? 's' : ''} {ticketType.toUpperCase()}</Text>
+                        <Text>Para el día {new Date(watch('visitDate') || '').toLocaleDateString()}</Text>
+                        <Text size="sm" c="dimmed" mt="md">
+                            Te hemos enviado un correo electrónico con los detalles para realizar el pago en boletería.
+                        </Text>
+                    </Stack>
                     <Paper withBorder p="lg" radius="md" bg="green.0">
                         <Stack align="center" gap="xs">
                             <Text size="sm">Tu código de reserva es:</Text>
@@ -428,10 +433,15 @@ export function TicketPurchasePage() {
                     <Title order={2} c="blue.7" ta="center">
                         ¡Compra iniciada!
                     </Title>
-                    <Text size="lg" ta="center">
-                        Te hemos redirigido a Mercado Pago para completar tu pago. 
-                        Una vez finalizado, recibirás un correo electrónico con tus entradas.
-                    </Text>
+                    <Stack gap="md" align="center">
+                        <Text size="lg" ta="center">Has seleccionado:</Text>
+                        <Text fw={500}>{ticketCount} entrada{ticketCount > 1 ? 's' : ''} {ticketType.toUpperCase()}</Text>
+                        <Text>Para el día {new Date(watch('visitDate') || '').toLocaleDateString()}</Text>
+                        <Text size="sm" c="dimmed" mt="md">
+                            Te hemos redirigido a Mercado Pago para completar tu pago. 
+                            Una vez finalizado, recibirás un correo electrónico con tus entradas.
+                        </Text>
+                    </Stack>
                     <Group>
                         <Button color="blue" onClick={handleBackToHome}>
                             Volver al inicio
