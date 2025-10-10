@@ -1,0 +1,33 @@
+.header {
+  height: 60px;
+  padding: 0 var(--mantine-spacing-md);
+  background-color: var(--mantine-color-green-7);
+  border-bottom: 1px solid var(--mantine-color-green-8);
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  text-decoration: none;
+  color: var(--mantine-color-white);
+}
+
+.logo {
+  max-height: 40px;
+  width: auto;
+}
+.link:hover {
+  background-color: var(--mantine-color-green-8);
+}
+
+.logo {
+  height: 40px; /* ajustá según el alto de tu navbar */
+  width: auto; /* mantiene la proporción */
+  object-fit: contain;
+  transition: transform 0.2s ease;
+}
+
+.logo:hover {
+  transform: scale(1.05); /* pequeño efecto al pasar el mouse */
+}
