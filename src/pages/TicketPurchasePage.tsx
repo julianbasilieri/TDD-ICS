@@ -8,6 +8,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { useMantineTheme } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { useNavigate } from 'react-router-dom';
+import { calcularPrecioPorTicket, calcularTotal } from '../utils/ticketCalculations';
 
 interface TicketFormData {
     visitDate: string | null;
@@ -50,7 +51,7 @@ export function TicketPurchasePage() {
 
     const [availability, setAvailability] = useState<number>(0);
     const [showSuccessCash, setShowSuccessCash] = useState(false);
-    const [showSuccessCredit, setShowSuccessCredit] = useState(true);
+    const [showSuccessCredit, setShowSuccessCredit] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [reservationCode, setReservationCode] = useState<string>('');
 
@@ -101,7 +102,7 @@ export function TicketPurchasePage() {
                     ticketCount: data.ticketCount,
                     ticketType: data.ticketType,
                     paymentMethod: data.paymentMethod,
-                    totalAmount: calculateTotal(),
+                    totalAmount: calcularTotal(ticketCount, ticketType),
                     reservationCode: newReservationCode
                 });
 
@@ -113,7 +114,7 @@ export function TicketPurchasePage() {
                     ticketCount: data.ticketCount,
                     ticketType: data.ticketType,
                     paymentMethod: data.paymentMethod,
-                    totalAmount: calculateTotal(),
+                    totalAmount: calcularTotal(ticketCount, ticketType),
                     reservationCode: newReservationCode
                 });
 
@@ -143,12 +144,6 @@ export function TicketPurchasePage() {
         navigate('/');
     };
 
-    const handleBuyMore = () => {
-        setShowSuccessCash(false);
-        setShowSuccessCredit(false);
-        window.scrollTo(0, 0);
-    };
-
     const getMaxDate = () => {
         const maxDate = new Date();
         maxDate.setDate(new Date().getDate() + 28);
@@ -174,9 +169,6 @@ export function TicketPurchasePage() {
         setValue('visitDate', date);
         if (date) setAvailability(ticketService.getAvailability(date));
     };
-
-    const calculatePricePerTicket = (type: string) => (type === 'vip' ? 25000 : 15000);
-    const calculateTotal = () => calculatePricePerTicket(ticketType) * validTicketCount;
 
     return (
         <Container size="xl" my="40px">
@@ -236,6 +228,18 @@ export function TicketPurchasePage() {
                                                     disabled={availability === 0}
                                                     required
                                                     w={isMobile ? '100%' : 'auto'}
+                                                    onKeyDown={(e) => {
+                                                        if (
+                                                            !/[0-9]/.test(e.key) &&
+                                                            !['Backspace', 'Tab', 'ArrowLeft', 'ArrowRight', 'Delete'].includes(e.key)
+                                                        ) {
+                                                            e.preventDefault()
+                                                        }
+                                                    }}
+                                                    onPaste={(e) => {
+                                                        const pasted = e.clipboardData.getData('Text')
+                                                        if (!/^\d+$/.test(pasted)) e.preventDefault()
+                                                    }}
                                                 />
                                             )}
                                         />
@@ -265,10 +269,22 @@ export function TicketPurchasePage() {
                                                                             placeholder="Edad"
                                                                             min={0}
                                                                             max={99}
-                                                                            value={field.value ?? null}  // <-- Aseguramos que el valor vacío sea null
+                                                                            value={field.value ?? null}
                                                                             error={errors.visitorAges?.[index]?.message}
                                                                             required
                                                                             w={isMobile ? '100%' : 'auto'}
+                                                                            onKeyDown={(e) => {
+                                                                                if (
+                                                                                    !/[0-9]/.test(e.key) &&
+                                                                                    !['Backspace', 'Tab', 'ArrowLeft', 'ArrowRight', 'Delete'].includes(e.key)
+                                                                                ) {
+                                                                                    e.preventDefault()
+                                                                                }
+                                                                            }}
+                                                                            onPaste={(e) => {
+                                                                                const pasted = e.clipboardData.getData('Text')
+                                                                                if (!/^\d+$/.test(pasted)) e.preventDefault()
+                                                                            }}
                                                                         />
                                                                     )}
                                                                 />
@@ -347,10 +363,10 @@ export function TicketPurchasePage() {
                                         {validTicketCount} entrada{ticketCount > 1 ? 's' : ''} {ticketType.toUpperCase()}
                                     </Text>
                                     <Text size="sm" c="dimmed">
-                                        Precio por entrada: ${calculatePricePerTicket(ticketType).toLocaleString()}
+                                        Precio por entrada: ${calcularPrecioPorTicket(ticketType).toLocaleString()}
                                     </Text>
                                     <Text fw={500} mt="md">
-                                        Total: ${calculateTotal().toLocaleString()}
+                                        Total: ${calcularTotal(validTicketCount, ticketType).toLocaleString()}
                                     </Text>
                                 </Stack>
                             </Paper>
@@ -366,8 +382,8 @@ export function TicketPurchasePage() {
                     color={paymentMethod === 'credit' ? 'blue' : 'green'}
                 >
                     {paymentMethod === 'credit'
-                        ? `Pagar con Mercado Pago ($${calculateTotal().toLocaleString()})`
-                        : `Reservar y pagar en boletería ($${calculateTotal().toLocaleString()})`
+                        ? `Pagar con Mercado Pago ($${calcularTotal(validTicketCount, ticketType).toLocaleString()})`
+                        : `Reservar y pagar en boletería ($${calcularTotal(validTicketCount, ticketType).toLocaleString()})`
                     }
                 </Button>
             </Stack>
@@ -438,7 +454,7 @@ export function TicketPurchasePage() {
                         <Text fw={500}>{ticketCount} entrada{ticketCount > 1 ? 's' : ''} {ticketType.toUpperCase()}</Text>
                         <Text>Para el día {new Date(watch('visitDate') || '').toLocaleDateString()}</Text>
                         <Text size="sm" c="dimmed" mt="md">
-                            Te hemos redirigido a Mercado Pago para completar tu pago. 
+                            Te hemos redirigido a Mercado Pago para completar tu pago.
                             Una vez finalizado, recibirás un correo electrónico con tus entradas.
                         </Text>
                     </Stack>

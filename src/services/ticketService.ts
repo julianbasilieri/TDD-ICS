@@ -18,7 +18,7 @@ export const ticketService = {
                 // Solo viernes (4), sábado (5) y domingo (6)
                 if ([5, 6, 0].includes(day)) {
                     const dateStr = date.toISOString().split('T')[0];
-                    availability[dateStr] = 5;
+                    availability[dateStr] = 20;
                 }
             }
 

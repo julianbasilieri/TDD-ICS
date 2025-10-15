@@ -52,6 +52,65 @@ Desarrollo:
 npm run dev
 ```
 
+## 🧪 Testing
+
+### Ejecutar Tests
+```bash
+# Ejecutar tests una vez
+npm run test
+
+# Ejecutar tests en modo watch
+npm run test:watch
+
+# Ejecutar tests con UI
+npm run test:ui
+
+# Generar reporte de cobertura
+npm run test:coverage
+```
+
+### Estructura de Tests
+```
+src/
+├── services/
+│   └── __tests__/          # Tests de servicios
+│       ├── ticketService.test.ts
+│       ├── transactionService.test.ts
+│       └── emailService.test.ts
+├── utils/
+│   └── __tests__/          # Tests de utilidades
+│       └── ticketCalculations.test.ts
+└── pages/
+    └── __tests__/          # Tests de componentes
+        └── TicketPurchasePage.test.tsx
+```
+
+### Convenciones de Testing
+- Usar `describe` para agrupar tests relacionados
+- Usar `it` con descripciones en español
+- Seguir patrón: Preparar → Ejecutar → Verificar
+- Limpiar mocks y localStorage entre tests
+- Tests independientes y autocontenidos
+
+### Ejemplos de TDD
+Para agregar una nueva funcionalidad:
+
+1. Escribir test que falle:
+```typescript
+it('debería calcular descuento para grupos', () => {
+    expect(calcularDescuentoGrupal(5)).toBe(0.1) // 10% descuento
+})
+```
+
+2. Implementar función mínima que pase:
+```typescript
+const calcularDescuentoGrupal = (cantidad: number) => {
+    return cantidad >= 5 ? 0.1 : 0
+}
+```
+
+3. Refactorizar si es necesario
+
 ## 📁 Estructura del Proyecto
 
 ```
