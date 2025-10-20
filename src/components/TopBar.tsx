@@ -36,7 +36,7 @@ export function TopBar() {
           <Group visibleFrom="sm">
             {currentUser ? (
               <>
-                <Button variant="white" color="green" onClick={() => navigate('/tickets')}>
+                <Button variant="white" color="brand" onClick={() => navigate('/tickets')}>
                   Comprar Entradas
                 </Button>
                 <Button
@@ -57,7 +57,7 @@ export function TopBar() {
               </>
             ) : (
               <>
-                <Button variant="white" color="green" onClick={() => navigate('/login')}>
+                <Button variant="white" color="brand" onClick={() => navigate('/login')}>
                   Iniciar Sesión
                 </Button>
                 <Button variant="outline" color="white" onClick={() => navigate('/registro')}>
@@ -88,7 +88,7 @@ export function TopBar() {
         <Stack>
           {currentUser ? (
             <>
-              <Button variant="light" color="green" onClick={() => { navigate('/tickets'); closeDrawer(); }}>
+              <Button variant="light" color="brand" onClick={() => { navigate('/tickets'); closeDrawer(); }}>
                 Comprar Entradas
               </Button>
               <Button variant="filled" color="red" onClick={() => { handleLogout(); closeDrawer(); }}>
@@ -97,10 +97,10 @@ export function TopBar() {
             </>
           ) : (
             <>
-              <Button variant="light" color="green" onClick={() => { navigate('/login'); closeDrawer(); }}>
+              <Button variant="light" color="brand" onClick={() => { navigate('/login'); closeDrawer(); }}>
                 Iniciar Sesión
               </Button>
-              <Button variant="outline" color="green" onClick={() => { navigate('/registro'); closeDrawer(); }}>
+              <Button variant="outline" color="brand" onClick={() => { navigate('/registro'); closeDrawer(); }}>
                 Registrarse
               </Button>
             </>

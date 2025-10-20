@@ -1,27 +1,35 @@
 interface TicketAvailability {
-    [date: string]: number;
+    [date: string]: boolean;
 }
 
 export const ticketService = {
-    initializeAvailability: () => {
+    initializeAvailability: (baseDate?: Date) => {
         if (!localStorage.getItem('ticketAvailability')) {
-
             const availability: TicketAvailability = {};
-            const today = new Date();
-
-            // Generar fechas para las próximas 4 semanas
-            for (let i = 0; i < 28; i++) {
+            const today = baseDate || new Date(); // Usar la fecha proporcionada o la actual
+            
+            // Generar fechas para el próximo mes
+            for (let i = 0; i < 31; i++) {
                 const date = new Date(today);
                 date.setDate(today.getDate() + i);
                 const day = date.getDay();
-
-                // Solo viernes (4), sábado (5) y domingo (6)
-                if ([5, 6, 0].includes(day)) {
-                    const dateStr = date.toISOString().split('T')[0];
-                    availability[dateStr] = 20;
-                }
+                const month = date.getMonth();
+                const dayOfMonth = date.getDate();
+                
+                // Abierto de martes (2) a domingo (0), cerrado lunes (1)
+                const isOpenDay = day !== 1;
+                
+                // Fechas especiales cerradas: Navidad y Año Nuevo
+                const isChristmas = month === 11 && dayOfMonth === 25; // 25 de diciembre
+                const isNewYear = month === 0 && dayOfMonth === 1;     // 1 de enero
+                
+                // El parque está abierto si es día de apertura y no es fecha especial cerrada
+                const isOpen = isOpenDay && !isChristmas && !isNewYear;
+                
+                const dateStr = date.toISOString().split('T')[0];
+                availability[dateStr] = isOpen;
             }
-
+            
             localStorage.setItem('ticketAvailability', JSON.stringify(availability));
             return availability;
         }
@@ -29,20 +37,10 @@ export const ticketService = {
 
     getAvailability: (date: string) => {
         const availability = JSON.parse(localStorage.getItem('ticketAvailability') || '{}');
-        return availability[date] || 0;
+        return availability[date] ? true : false;
     },
 
     getAvaibilityDays: () => {
-        return localStorage.getItem('ticketAvailability')
+        return localStorage.getItem('ticketAvailability');
     },
-
-    updateAvailability: (date: string, quantity: number) => {
-        const availability = JSON.parse(localStorage.getItem('ticketAvailability') || '{}');
-        if (availability[date] >= quantity) {
-            availability[date] -= quantity;
-            localStorage.setItem('ticketAvailability', JSON.stringify(availability));
-            return true;
-        }
-        return false;
-    }
 };
