@@ -1,5 +1,5 @@
 import { Container, Title, NumberInput, Select, Button, Stack, Text, Accordion, Grid, Paper, Modal, Group, Loader, Divider } from '@mantine/core';
-import { DateInput } from '@mantine/dates';
+import { DatePickerInput } from '@mantine/dates';
 import { useState, useEffect } from 'react';
 import { ticketService } from '../services/ticketService';
 import { transactionService } from '../services/transactionService';
@@ -194,7 +194,7 @@ export function TicketPurchasePage() {
                                     control={control}
                                     rules={{ required: 'Debes seleccionar una fecha' }}
                                     render={({ field }) => (
-                                        <DateInput
+                                        <DatePickerInput
                                             {...field}
                                             label="Fecha de visita"
                                             placeholder="Selecciona una fecha"
@@ -206,6 +206,11 @@ export function TicketPurchasePage() {
                                             description="El parque abre de martes a domingo, excepto Navidad y Año Nuevo"
                                             error={errors.visitDate?.message}
                                             required
+                                            getDayProps={(date) => ({
+                                                style: {
+                                                    color: 'inherit'
+                                                }
+                                            })}
                                         />
                                     )}
                                 />
