@@ -1,4 +1,4 @@
-import { Container, Title, NumberInput, Select, Button, Stack, Text, Accordion, Grid, Paper, Modal, Group, Loader } from '@mantine/core';
+import { Container, Title, NumberInput, Select, Button, Stack, Text, Accordion, Grid, Paper, Modal, Group, Loader, Divider } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { useState, useEffect } from 'react';
 import { ticketService } from '../services/ticketService';
@@ -9,12 +9,13 @@ import { useMantineTheme } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { useNavigate } from 'react-router-dom';
 import { calcularPrecioPorTicket, calcularTotal } from '../utils/ticketCalculations';
+import { createDateFromStr } from '../utils/dateStr';
 
 interface TicketFormData {
     visitDate: string | null;
     ticketCount: number;
     visitorAges: number[];
-    ticketType: string;
+    ticketType: 'vip' | 'regular';
     paymentMethod: string;
 }
 
@@ -26,34 +27,28 @@ export function TicketPurchasePage() {
     // --- Form setup ---
     const getNextAvailableDate = () => {
         const today = new Date();
-        const maxDays = 28;
+        const maxDays = 31;
         const availabilityData = JSON.parse(ticketService.getAvaibilityDays() || '{}');
 
         for (let i = 0; i < maxDays; i++) {
             const date = new Date(today);
             date.setDate(today.getDate() + i);
-            const day = date.getDay();
+            const dateStr = date.toISOString().split('T')[0];
 
-            if ([5, 6, 0].includes(day)) {
-                const year = date.getFullYear();
-                const month = String(date.getMonth() + 1).padStart(2, '0');
-                const dayOfMonth = String(date.getDate()).padStart(2, '0');
-                const dateStr = `${year}-${month}-${dayOfMonth}`;
-
-                // Verificar si hay entradas disponibles para esta fecha
-                if (availabilityData[dateStr] && availabilityData[dateStr] > 0) {
-                    return dateStr;
-                }
+            // Verificar si el parque está abierto
+            if (availabilityData[dateStr]) {
+                return dateStr;
             }
         }
         return null;
     };
 
-    const [availability, setAvailability] = useState<number>(0);
+    const [availability, setAvailability] = useState<boolean>(false);
     const [showSuccessCash, setShowSuccessCash] = useState(false);
     const [showSuccessCredit, setShowSuccessCredit] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [reservationCode, setReservationCode] = useState<string>('');
+    const [formKey, setFormKey] = useState(Date.now());
 
     const { control, handleSubmit, watch, formState: { errors, isValid }, setValue, reset } = useForm<TicketFormData>({
         defaultValues: {
@@ -68,33 +63,28 @@ export function TicketPurchasePage() {
 
     useEffect(() => {
         const defaultDate = getNextAvailableDate();
+
         if (defaultDate) setAvailability(ticketService.getAvailability(defaultDate));
     }, []);
 
     const ticketCount = watch('ticketCount');
     const ticketType = watch('ticketType');
     const paymentMethod = watch('paymentMethod');
-    const validTicketCount = Math.min(Math.max(ticketCount, 1), Math.min(10, availability));
+    const visitorAges = watch('visitorAges');
+    const validTicketCount = Math.min(Math.max(ticketCount, 1), 10);
 
     const handleCreditCardPayment = () => window.open('https://www.mercadopago.com.ar', '_blank');
 
     const onSubmit = async (data: TicketFormData) => {
-        if (data.visitDate && ticketService.updateAvailability(data.visitDate, data.ticketCount)) {
+        if (data.visitDate) {
             setIsLoading(true);
             try {
-                setAvailability(prev => prev - data.ticketCount);
-
                 const currentUserStr = localStorage.getItem('currentUser');
                 const currentUser = currentUserStr ? JSON.parse(currentUserStr) : null;
 
-                // Generate reservation code for cash payments
-                const newReservationCode = data.paymentMethod === 'cash'
-                    ? Math.random().toString(36).substring(7).toUpperCase()
-                    : undefined;
-
-                if (data.paymentMethod === 'cash') {
-                    setReservationCode(newReservationCode || '');
-                }
+                // Generate unique code for both payment methods
+                const purchaseCode = Math.random().toString(36).substring(7).toUpperCase();
+                setReservationCode(purchaseCode);
 
                 const transaction = transactionService.saveTransaction({
                     email: currentUser?.email || 'anonymous',
@@ -102,8 +92,8 @@ export function TicketPurchasePage() {
                     ticketCount: data.ticketCount,
                     ticketType: data.ticketType,
                     paymentMethod: data.paymentMethod,
-                    totalAmount: calcularTotal(ticketCount, ticketType),
-                    reservationCode: newReservationCode
+                    totalAmount: calcularTotal(ticketCount, ticketType, visitorAges.slice(0, validTicketCount)),
+                    reservationCode: purchaseCode
                 });
 
                 // Send confirmation email
@@ -114,8 +104,8 @@ export function TicketPurchasePage() {
                     ticketCount: data.ticketCount,
                     ticketType: data.ticketType,
                     paymentMethod: data.paymentMethod,
-                    totalAmount: calcularTotal(ticketCount, ticketType),
-                    reservationCode: newReservationCode
+                    totalAmount: calcularTotal(ticketCount, ticketType, visitorAges.slice(0, validTicketCount)),
+                    reservationCode: purchaseCode
                 });
 
                 if (data.paymentMethod === 'credit') {
@@ -124,14 +114,6 @@ export function TicketPurchasePage() {
                 } else {
                     setShowSuccessCash(true);
                 }
-
-                reset({
-                    visitDate: getNextAvailableDate(),
-                    ticketCount: 1,
-                    visitorAges: Array(10).fill(null),
-                    ticketType: 'regular',
-                    paymentMethod: 'cash'
-                });
             } finally {
                 setIsLoading(false);
             }
@@ -142,27 +124,48 @@ export function TicketPurchasePage() {
         setShowSuccessCash(false);
         setShowSuccessCredit(false);
         navigate('/');
+        reset({
+            visitDate: getNextAvailableDate(),
+            ticketCount: 1,
+            visitorAges: Array(10).fill(null),
+            ticketType: 'regular',
+            paymentMethod: 'cash'
+        });
+        setFormKey(Date.now()); // Generar nueva clave para forzar re-renderización
     };
 
+    const handleBuyMore = () => {
+        setShowSuccessCash(false);
+        setShowSuccessCredit(false);
+        reset({
+            visitDate: getNextAvailableDate(),
+            ticketCount: 1,
+            visitorAges: Array(10).fill(null),
+            ticketType: 'regular',
+            paymentMethod: 'cash'
+        });
+        setFormKey(Date.now()); // Generar nueva clave para forzar re-renderización
+    }
     const getMaxDate = () => {
         const maxDate = new Date();
-        maxDate.setDate(new Date().getDate() + 28);
+        maxDate.setDate(new Date().getDate() + 31);
         return maxDate;
     };
 
     const isDateDisabled = (date: string) => {
         const parsedDate = new Date(date);
         const day = parsedDate.getDay();
+        const month = parsedDate.getMonth();
+        const dayOfMonth = parsedDate.getDate();
 
-        // Verificar si es fin de semana (viernes, sábado o domingo)
-        if (![4, 5, 6].includes(day)) return true;
+        // Cerrado los lunes (0)
+        if (day === 0) return true;
 
-        // Verificar disponibilidad
-        const availabilityData = JSON.parse(ticketService.getAvaibilityDays() || '{}');
-        const dateStr = parsedDate.toISOString().split('T')[0];
-        const hasAvailability = availabilityData[dateStr] > 0;
+        // Cerrado en Navidad y Año Nuevo
+        if ((month === 11 && dayOfMonth === 25) || (month === 0 && dayOfMonth === 1))
+            return true;
 
-        return !hasAvailability;
+        return false;
     };
 
     const handleDateChange = (date: string | null) => {
@@ -179,7 +182,7 @@ export function TicketPurchasePage() {
             <Stack gap="xl">
                 <Grid gutter={{ base: 'md', sm: 'lg', md: 'xl' }}>
                     <Grid.Col span={{ base: 12, md: 8 }}>
-                        <form id="ticketForm" onSubmit={handleSubmit(onSubmit)}>
+                        <form key={formKey} id="ticketForm" onSubmit={handleSubmit(onSubmit)}>
                             <Stack
                                 gap="md"
                                 align="stretch"
@@ -198,34 +201,33 @@ export function TicketPurchasePage() {
                                             minDate={new Date()}
                                             maxDate={getMaxDate()}
                                             valueFormat="DD/MM/YYYY"
-                                            description="El parque abre únicamente los viernes, sábados y domingos"
+                                            description="El parque abre de martes a domingo, excepto Navidad y Año Nuevo"
                                             error={errors.visitDate?.message}
                                             required
                                         />
                                     )}
                                 />
 
-                                {availability === 0 ?
-                                    <Text c="red.5">No hay entradas disponibles para la fecha seleccionada.</Text>
+                                {!availability ?
+                                    <Text c="red.5">El parque está cerrado en la fecha seleccionada.</Text>
                                     :
                                     <>
                                         <Controller
                                             name="ticketCount"
                                             control={control}
                                             rules={{
-                                                required: 'Debes seleccionar la cantidad de entradas',
+                                                required: 'Debes ingresar la cantidad de entradas',
                                                 min: { value: 1, message: 'Debes comprar al menos 1 entrada' },
-                                                max: { value: Math.min(10, availability), message: availability < 10 ? `Solo quedan ${availability} entradas` : 'Máximo 10 entradas por compra' }
+                                                max: { value: 10, message: 'Máximo 10 entradas por compra' }
                                             }}
                                             render={({ field }) => (
                                                 <NumberInput
                                                     {...field}
                                                     label="Cantidad de entradas"
                                                     min={1}
-                                                    max={Math.min(10, availability)}
-                                                    description={`Máximo 10 entradas por persona. ${availability} entradas disponibles`}
+                                                    max={10}
+                                                    description="Máximo 10 entradas por persona"
                                                     error={errors.ticketCount?.message}
-                                                    disabled={availability === 0}
                                                     required
                                                     w={isMobile ? '100%' : 'auto'}
                                                     onKeyDown={(e) => {
@@ -254,7 +256,7 @@ export function TicketPurchasePage() {
                                                         <Stack gap="md">
                                                             {Array.from({ length: validTicketCount }).map((_, index) => (
                                                                 <Controller
-                                                                    key={index}
+                                                                    key={`visitor-${index}-${formKey}`}
                                                                     name={`visitorAges.${index}`}
                                                                     control={control}
                                                                     rules={{
@@ -270,6 +272,7 @@ export function TicketPurchasePage() {
                                                                             min={0}
                                                                             max={99}
                                                                             value={field.value ?? null}
+                                                                            defaultValue={undefined}
                                                                             error={errors.visitorAges?.[index]?.message}
                                                                             required
                                                                             w={isMobile ? '100%' : 'auto'}
@@ -309,7 +312,6 @@ export function TicketPurchasePage() {
                                                 { value: 'regular', label: 'Regular' },
                                                 { value: 'vip', label: 'VIP' }
                                             ]}
-                                            description="La entrada VIP incluye acceso prioritario y guía personalizado"
                                             error={errors.ticketType?.message}
                                             required
                                             comboboxProps={{ position: 'bottom-start' }}
@@ -331,7 +333,7 @@ export function TicketPurchasePage() {
                                                 { value: 'cash', label: 'Efectivo en boletería' },
                                                 { value: 'credit', label: 'Tarjeta de crédito' }
                                             ]}
-                                            description="El pago en efectivo se realiza al momento de retirar las entradas"
+                                            description="El pago en efectivo se realiza al momento de ingresar al parque"
                                             error={errors.paymentMethod?.message}
                                             required
                                             comboboxProps={{ position: 'bottom-start' }}
@@ -344,7 +346,7 @@ export function TicketPurchasePage() {
                     </Grid.Col>
 
                     <Grid.Col span={{ base: 12, md: 4 }}>
-                        {ticketCount && ticketType && (
+                        {ticketCount > 0 && ticketType && visitorAges.slice(0, validTicketCount).filter(age => age !== null).length > 0 && (
                             <Paper
                                 withBorder
                                 p="md"
@@ -362,12 +364,50 @@ export function TicketPurchasePage() {
                                     <Text>
                                         {validTicketCount} entrada{ticketCount > 1 ? 's' : ''} {ticketType.toUpperCase()}
                                     </Text>
-                                    <Text size="sm" c="dimmed">
-                                        Precio por entrada: ${calcularPrecioPorTicket(ticketType).toLocaleString()}
-                                    </Text>
-                                    <Text fw={500} mt="md">
-                                        Total: ${calcularTotal(validTicketCount, ticketType).toLocaleString()}
-                                    </Text>
+
+                                    {/* Desglose por categorías de edad */}
+                                    {visitorAges.slice(0, validTicketCount).filter(age => age !== null && age <= 3).length > 0 && (
+                                        <Group justify='space-between'>
+                                            <Text size="sm">
+                                                Menores de 3 años: gratis ({visitorAges.slice(0, validTicketCount).filter(age => age !== null && age <= 3).length})
+                                            </Text>
+                                            <Text size='lg'>
+                                                ${calcularPrecioPorTicket(ticketType, visitorAges.slice(0, validTicketCount).filter(age => age !== null && age <= 3)[0]) * visitorAges.slice(0, validTicketCount).filter(age => age !== null && age <= 3).length}
+                                            </Text>
+                                        </Group>
+                                    )}
+
+                                    {visitorAges.slice(0, validTicketCount).filter(age => age !== null && ((age > 3 && age <= 15) || age >= 60)).length > 0 && (
+                                        <Group justify='space-between' wrap='nowrap'>
+                                            <Text size="sm">
+                                                Menores de 15 y mayores de 60: ${calcularPrecioPorTicket(ticketType, visitorAges.slice(0, validTicketCount).filter(age => age !== null && ((age > 3 && age <= 15) || age >= 60))[0]).toLocaleString('es-AR')} ({visitorAges.slice(0, validTicketCount).filter(age => age !== null && ((age > 3 && age <= 15) || age >= 60)).length})
+                                            </Text>
+                                            <Text size='lg'>
+                                                ${(calcularPrecioPorTicket(ticketType, visitorAges.slice(0, validTicketCount).filter(age => age !== null && ((age > 3 && age <= 15) || age >= 60))[0]) * visitorAges.slice(0, validTicketCount).filter(age => age !== null && ((age > 3 && age <= 15) || age >= 60)).length).toLocaleString('es-AR')}
+                                            </Text>
+                                        </Group>
+                                    )}
+
+                                    {visitorAges.slice(0, validTicketCount).filter(age => age !== null && age > 15 && age < 60).length > 0 && (
+                                        <Group justify='space-between'>
+                                            <Text size="sm">
+                                                Adultos: ${calcularPrecioPorTicket(ticketType, visitorAges.slice(0, validTicketCount).filter(age => age !== null && age > 15 && age < 60)[0]).toLocaleString('es-AR')} ({visitorAges.slice(0, validTicketCount).filter(age => age !== null && age > 15 && age < 60).length})
+                                            </Text>
+                                            <Text size='lg'>
+                                                ${(calcularPrecioPorTicket(ticketType, visitorAges.slice(0, validTicketCount).filter(age => age !== null && age > 15 && age < 60)[0]) * visitorAges.slice(0, validTicketCount).filter(age => age !== null && age > 15 && age < 60).length).toLocaleString('es-AR')}
+                                            </Text>
+                                        </Group>
+                                    )}
+                                    <Divider />
+                                    <Group justify='space-between'>
+                                        <Text fw={700} mt="lg">
+                                            TOTAL:
+                                        </Text>
+                                        <Text fw={700} size='lg' mt="lg">
+                                            ${calcularTotal(validTicketCount, ticketType, visitorAges.slice(0, validTicketCount)).toLocaleString('es-AR')}
+                                        </Text>
+                                    </Group>
+
                                 </Stack>
                             </Paper>
                         )}
@@ -378,12 +418,12 @@ export function TicketPurchasePage() {
                     type="submit"
                     form="ticketForm"
                     w={isMobile ? '100%' : '66%'}
-                    disabled={!isValid || availability === 0}
-                    color={paymentMethod === 'credit' ? 'blue' : 'green'}
+                    disabled={!isValid || !availability}
+                    color={paymentMethod === 'credit' ? 'blue' : 'brand'}
                 >
                     {paymentMethod === 'credit'
-                        ? `Pagar con Mercado Pago ($${calcularTotal(validTicketCount, ticketType).toLocaleString()})`
-                        : `Reservar y pagar en boletería ($${calcularTotal(validTicketCount, ticketType).toLocaleString()})`
+                        ? `Pagar con Mercado Pago ($${calcularTotal(validTicketCount, ticketType, visitorAges.slice(0, validTicketCount)).toLocaleString('es-AR')})`
+                        : `Reservar y pagar en boletería ($${calcularTotal(validTicketCount, ticketType, visitorAges.slice(0, validTicketCount)).toLocaleString('es-AR')})`
                     }
                 </Button>
             </Stack>
@@ -395,9 +435,10 @@ export function TicketPurchasePage() {
                 centered
                 withCloseButton={false}
                 closeOnClickOutside={false}
+                closeOnEscape={false}
             >
                 <Stack align="center" gap="md" py="xl">
-                    <Loader size="xl" color="green" />
+                    <Loader size="xl" color="brand" />
                     <Text size="lg" ta="center">Procesando tu compra...</Text>
                 </Stack>
             </Modal>
@@ -409,20 +450,21 @@ export function TicketPurchasePage() {
                 centered
                 withCloseButton={false}
                 closeOnClickOutside={false}
+                closeOnEscape={false}
             >
                 <Stack align="center" gap="xl" py="xl">
-                    <Title order={2} c="green.7" ta="center">
+                    <Title order={2} c="brand.7" ta="center">
                         ¡Reserva exitosa!
                     </Title>
                     <Stack gap="md" align="center">
                         <Text size="lg" ta="center">Has reservado:</Text>
                         <Text fw={500}>{ticketCount} entrada{ticketCount > 1 ? 's' : ''} {ticketType.toUpperCase()}</Text>
-                        <Text>Para el día {new Date(watch('visitDate') || '').toLocaleDateString()}</Text>
-                        <Text size="sm" c="dimmed" mt="md">
+                        <Text>Para el día {createDateFromStr(watch('visitDate'))?.toLocaleDateString()}</Text>
+                        <Text size="sm" c="dimmed" ta='center' mt="md">
                             Te hemos enviado un correo electrónico con los detalles para realizar el pago en boletería.
                         </Text>
                     </Stack>
-                    <Paper withBorder p="lg" radius="md" bg="green.0">
+                    <Paper withBorder p="lg" radius="md" bg="brand.4">
                         <Stack align="center" gap="xs">
                             <Text size="sm">Tu código de reserva es:</Text>
                             <Title order={3}>{reservationCode}</Title>
@@ -430,8 +472,11 @@ export function TicketPurchasePage() {
                         </Stack>
                     </Paper>
                     <Group>
-                        <Button color="green" onClick={handleBackToHome}>
+                        <Button color="brand" onClick={handleBackToHome}>
                             Volver al inicio
+                        </Button>
+                        <Button color="brand" variant='outline' onClick={handleBuyMore}>
+                            Comprar mas entradas
                         </Button>
                     </Group>
                 </Stack>
@@ -444,23 +489,35 @@ export function TicketPurchasePage() {
                 centered
                 withCloseButton={false}
                 closeOnClickOutside={false}
+                closeOnEscape={false}
             >
                 <Stack align="center" gap="xl" py="xl">
-                    <Title order={2} c="blue.7" ta="center">
+                    <Title order={2} c="brand.7" ta="center">
                         ¡Compra iniciada!
                     </Title>
                     <Stack gap="md" align="center">
                         <Text size="lg" ta="center">Has seleccionado:</Text>
                         <Text fw={500}>{ticketCount} entrada{ticketCount > 1 ? 's' : ''} {ticketType.toUpperCase()}</Text>
-                        <Text>Para el día {new Date(watch('visitDate') || '').toLocaleDateString()}</Text>
-                        <Text size="sm" c="dimmed" mt="md">
+                        <Text>Para el día {createDateFromStr(watch('visitDate'))?.toLocaleDateString()}</Text>
+                        <Text fw={700}>Total: ${calcularTotal(validTicketCount, ticketType, visitorAges.slice(0, validTicketCount)).toLocaleString('es-AR')}</Text>
+                        <Text size="sm" c="dimmed" ta='center' mt="md">
                             Te hemos redirigido a Mercado Pago para completar tu pago.
                             Una vez finalizado, recibirás un correo electrónico con tus entradas.
                         </Text>
                     </Stack>
+                    <Paper withBorder p="lg" radius="md" bg="brand.4">
+                        <Stack align="center" gap="xs">
+                            <Text size="sm">Tu código de compra es:</Text>
+                            <Title order={3}>{reservationCode}</Title>
+                            <Text size="xs" c="dimmed">Este código también fue enviado a tu correo electrónico</Text>
+                        </Stack>
+                    </Paper>
                     <Group>
-                        <Button color="blue" onClick={handleBackToHome}>
+                        <Button color="brand" onClick={handleBackToHome}>
                             Volver al inicio
+                        </Button>
+                        <Button color="brand" variant='outline' onClick={handleBuyMore}>
+                            Comprar mas entradas
                         </Button>
                     </Group>
                 </Stack>

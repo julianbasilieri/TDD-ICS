@@ -2,35 +2,73 @@ import { describe, it, expect } from 'vitest'
 import { calcularPrecioPorTicket, calcularTotal } from '../ticketCalculations'
 
 describe('ticketCalculations', () => {
-    describe('calculatePricePerTicket', () => {
-        it('debería devolver 15000 para entrada regular', () => {
-            expect(calcularPrecioPorTicket('regular')).toBe(15000)
-        })
+    describe('calcularPrecioPorTicket', () => {
+        // Casos limite
+        it('debería manejar valores límite correctamente', () => {
+            // Edad negativa (error)
+            expect(calcularPrecioPorTicket('regular', -1)).toBe(-1)
 
-        it('debería devolver 25000 para entrada VIP', () => {
-            expect(calcularPrecioPorTicket('vip')).toBe(25000)
-        })
+            // 0 años (gratis)
+            expect(calcularPrecioPorTicket('regular', 0)).toBe(0)
 
-        it('debería usar el precio regular para un tipo de entrada inválido', () => {
-            expect(calcularPrecioPorTicket('invalid')).toBe(15000)
+            // 3 años (gratis)
+            expect(calcularPrecioPorTicket('vip', 3)).toBe(0)
+            
+            // 4 años (descuento)
+            expect(calcularPrecioPorTicket('regular', 4)).toBe(2500)
+            
+            // 15 años (descuento)
+            expect(calcularPrecioPorTicket('vip', 15)).toBe(5000)
+            
+            // 16 años (precio completo)
+            expect(calcularPrecioPorTicket('regular', 16)).toBe(5000)
+            
+            // 59 años (precio completo)
+            expect(calcularPrecioPorTicket('vip', 59)).toBe(10000)
+            
+            // 60 años (descuento)
+            expect(calcularPrecioPorTicket('regular', 60)).toBe(2500)
+
+            // 99 años (descuento)
+            expect(calcularPrecioPorTicket('vip', 99)).toBe(5000)
+
+            // 100 años (error)
+            expect(calcularPrecioPorTicket('regular', 100)).toBe(-1)
         })
     })
 
-    describe('calculateTotal', () => {
-        it('debería calcular el total para entradas regulares', () => {
-            expect(calcularTotal(3, 'regular')).toBe(45000) // 3 * 15000
+    describe('calcularTotal', () => {
+        it('debería calcular correctamente el total para 1 entrada regular adulto', () => {
+            expect(calcularTotal(1, 'regular', [30])).toBe(5000)
         })
 
-        it('debería calcular el total para entradas VIP', () => {
-            expect(calcularTotal(2, 'vip')).toBe(50000) // 2 * 25000
+        it('debería calcular correctamente el total para entradas con diferentes edades', () => {
+            expect(calcularTotal(3, 'regular', [2, 10, 35])).toBe(7500)
+        })
+
+        it('debería calcular correctamente el total para entradas VIP', () => {
+            expect(calcularTotal(2, 'vip', [40, 65])).toBe(15000)
         })
 
         it('debería devolver 0 cuando no hay entradas', () => {
-            expect(calcularTotal(0, 'regular')).toBe(0)
+            expect(calcularTotal(0, 'regular', [])).toBe(0)
         })
 
-        it('debería manejar cantidades negativas como 0', () => {
-            expect(calcularTotal(-1, 'vip')).toBe(0)
+        it('debería devolver 0 para cantidades negativas', () => {
+            expect(calcularTotal(-1, 'vip', [])).toBe(0)
+        })
+
+        it('debería no considerar edades negativas', () => {
+            expect(calcularTotal(2, 'vip', [-10, 20])).toBe(10000)
+        })
+
+        it('debería manejar el caso de más de 10 entradas', () => {
+            expect(calcularTotal(11, 'regular', Array(11).fill(30))).toBe(0)
+        })
+
+        it('debería manejar el caso de arrays de edades vacíos o insuficientes', () => {
+            // Solo una edad proporcionada para 2 entradas
+            expect(calcularTotal(2, 'regular', [40])).toBe(5000)
         })
     })
 })

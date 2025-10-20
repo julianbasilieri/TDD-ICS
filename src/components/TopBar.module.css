@@ -1,8 +1,7 @@
 .header {
   height: 60px;
   padding: 0 var(--mantine-spacing-md);
-  background-color: var(--mantine-color-green-7);
-  border-bottom: 1px solid var(--mantine-color-green-8);
+  background-color: var(--mantine-color-brand-5);
 }
 
 .link {
@@ -16,9 +15,6 @@
 .logo {
   max-height: 40px;
   width: auto;
-}
-.link:hover {
-  background-color: var(--mantine-color-green-8);
 }
 
 .logo {

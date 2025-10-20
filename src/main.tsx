@@ -6,26 +6,29 @@ import './index.css'
 import App from './App.tsx'
 import '@mantine/core/styles.css'
 import { Notifications } from '@mantine/notifications'
+import '@mantine/notifications/styles.css';
+import '@fontsource/montserrat'
 
 const theme = createTheme({
-  primaryColor: 'green',
+  primaryColor: 'brand',
   colors: {
-    green: [
-      '#F1F8E9',  // Más sutil para fondos
-      '#DCEDC8',
-      '#C5E1A5',
-      '#9CCC65',
-      '#7CB342',
-      '#558B2F',  // Color principal
-      '#33691E',
-      '#2E5A1C',  // Más oscuro para elementos importantes
-      '#1B5E20',
-      '#0A2F0A',  // Casi negro verdoso
+    brand: [
+      '#134611',
+      '#3E8914',
+      '#3DA35D',
+      '#96E072',
+      '#E8FCCF',
+      '#134611',
+      '#3E8914',
+      '#3DA35D',
+      '#96E072',
+      '#E8FCCF',
     ],
   },
+  fontFamily: 'Montserrat, sans-serif',
   defaultGradient: {
-    from: '#558B2F',
-    to: '#33691E',
+    from: '#3E8914',
+    to: '#3DA35D',
     deg: 45,
   },
 });

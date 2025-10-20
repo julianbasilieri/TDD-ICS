@@ -1,4 +1,5 @@
 import emailjs from '@emailjs/browser';
+import { createDateFromStr } from '../utils/dateStr';
 
 const ENV = import.meta.env
 
@@ -29,10 +30,14 @@ export const emailService = {
             // Parámetros base comunes
             const baseParams = {
                 email: data.email,
-                visitDate: new Date(data.visitDate).toLocaleDateString(),
+                visitDate: (() => {
+                    const date = createDateFromStr(data.visitDate);
+                    return date ? date.toLocaleDateString() : '';
+                })(),
                 ticketCount: data.ticketCount,
                 ticketType: data.ticketType.toUpperCase(),
-                totalAmount: data.totalAmount.toLocaleString(),
+                totalAmount: data.totalAmount.toLocaleString('es-AR'),
+                reservationCode: data.reservationCode,
             };
 
             // Selección del template y parámetros específicos
@@ -41,13 +46,11 @@ export const emailService = {
             if (data.paymentMethod === 'cash') {
                 templateParams = {
                     ...baseParams,
-                    reservationCode: data.reservationCode,
                 };
                 selectedTemplate = ENV.VITE_EMAILJS_TEMPLATE_ID_BOLETERIA;
             } else {
                 templateParams = {
                     ...baseParams,
-                    transactionId: data.transactionId,
                     paymentMethod: 'Tarjeta de crédito',
                 };
                 selectedTemplate = ENV.VITE_EMAILJS_TEMPLATE_ID_MERCADOPAGO;

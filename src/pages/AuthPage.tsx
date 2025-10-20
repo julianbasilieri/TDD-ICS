@@ -82,7 +82,7 @@ export function AuthPage() {
         notifications.show({
           title: 'Registro exitoso',
           message: 'Usuario registrado correctamente',
-          color: 'green',
+          color: 'brand',
           position: 'top-center'
         });
         navigate('/login');
@@ -99,21 +99,21 @@ export function AuthPage() {
 
   return (
     <Container size={420} my={40}>
-      <Title ta="center" c="green.7">
+      <Title ta="center" c="brand.7">
         {isLogin ? 'Bienvenido de nuevo!' : 'Crear una cuenta'}
       </Title>
       <Text c="dimmed" size="sm" ta="center" mt={5}>
         {isLogin ? (
           <>
             ¿No tienes una cuenta?{' '}
-            <Anchor size="sm" c="green.7" onClick={() => navigate('/registro')}>
+            <Anchor size="sm" c="brand.7" onClick={() => navigate('/registro')}>
               Crear cuenta
             </Anchor>
           </>
         ) : (
           <>
             ¿Ya tienes una cuenta?{' '}
-            <Anchor size="sm" c="green.7" onClick={() => navigate('/login')}>
+            <Anchor size="sm" c="brand.7" onClick={() => navigate('/login')}>
               Iniciar sesión
             </Anchor>
           </>
@@ -157,7 +157,7 @@ export function AuthPage() {
         {isLogin && loginError && (
           <Alert mt="xl" variant="light" color="red" title="Email o contraseña incorrectos" icon={<IconInfoCircle />} />
         )}
-        <Button fullWidth mt="xl" color="green.7" type="submit">
+        <Button fullWidth mt="xl" variant='gradient' type="submit">
           {isLogin ? 'Iniciar sesión' : 'Registrarse'}
         </Button>
       </Paper>
