@@ -3,6 +3,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { userService } from '../services/userService';
+import { IconTicket, IconReceipt, IconRefresh } from '@tabler/icons-react';
 import classes from './TopBar.module.css';
 
 export function TopBar() {
@@ -24,6 +25,13 @@ export function TopBar() {
     setCurrentUser(null);
     navigate('/');
   };
+  
+  // Nueva función para limpiar localStorage y recargar la página
+  const handleClearLocalStorage = () => {
+    localStorage.clear();
+    navigate('/');
+    window.location.reload();
+  };
 
   return (
     <Box>
@@ -36,9 +44,19 @@ export function TopBar() {
           <Group visibleFrom="sm">
             {currentUser ? (
               <>
-                <Button variant="white" color="brand" onClick={() => navigate('/tickets')}>
+                <Button variant="white" color="brand" onClick={() => navigate('/tickets')} leftSection={<IconTicket size={16} />}>
                   Comprar Entradas
                 </Button>
+                {currentUser.email === 'admin@gmail.com' &&
+                  <>
+                    <Button variant="white" color="brand" onClick={() => navigate('/transacciones')} leftSection={<IconReceipt size={16} />}>
+                      Transacciones
+                    </Button>
+                    <Button variant="white" color="brand" onClick={handleClearLocalStorage} leftSection={<IconRefresh size={16} />}>
+                      Limpiar BD
+                    </Button>
+                  </>
+                }
                 <Button
                   variant="filled"
                   color="red"
@@ -88,9 +106,19 @@ export function TopBar() {
         <Stack>
           {currentUser ? (
             <>
-              <Button variant="light" color="brand" onClick={() => { navigate('/tickets'); closeDrawer(); }}>
+              <Button variant="light" color="brand" onClick={() => { navigate('/tickets'); closeDrawer(); }} leftSection={<IconTicket size={16} />}>
                 Comprar Entradas
               </Button>
+              {currentUser.email === 'admin@gmail.com' &&
+                <>
+                  <Button variant="light" color="brand" onClick={() => { navigate('/transacciones'); closeDrawer(); }} leftSection={<IconReceipt size={16} />}>
+                    Transacciones
+                  </Button>
+                  <Button variant="light" color="brand" onClick={handleClearLocalStorage} leftSection={<IconRefresh size={16} />}>
+                    Limpiar BD
+                  </Button>
+                </>
+              }
               <Button variant="filled" color="red" onClick={() => { handleLogout(); closeDrawer(); }}>
                 Cerrar Sesión
               </Button>

@@ -1,3 +1,5 @@
+import { toLocalISODate, addDays } from '../utils/dateUtils';
+
 interface TicketAvailability {
     [date: string]: boolean;
 }
@@ -6,12 +8,11 @@ export const ticketService = {
     initializeAvailability: (baseDate?: Date) => {
         if (!localStorage.getItem('ticketAvailability')) {
             const availability: TicketAvailability = {};
-            const today = baseDate || new Date(); // Usar la fecha proporcionada o la actual
+            const today = baseDate || new Date();
             
             // Generar fechas para el próximo mes
             for (let i = 0; i < 31; i++) {
-                const date = new Date(today);
-                date.setDate(today.getDate() + i);
+                const date = addDays(today, i);
                 const day = date.getDay();
                 const month = date.getMonth();
                 const dayOfMonth = date.getDate();
@@ -26,7 +27,7 @@ export const ticketService = {
                 // El parque está abierto si es día de apertura y no es fecha especial cerrada
                 const isOpen = isOpenDay && !isChristmas && !isNewYear;
                 
-                const dateStr = date.toISOString().split('T')[0];
+                const dateStr = toLocalISODate(date); // Usar nuestra función personalizada
                 availability[dateStr] = isOpen;
             }
             

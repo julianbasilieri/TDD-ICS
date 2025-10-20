@@ -9,7 +9,7 @@ import { useMantineTheme } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { useNavigate } from 'react-router-dom';
 import { calcularPrecioPorTicket, calcularTotal } from '../utils/ticketCalculations';
-import { createDateFromStr } from '../utils/dateStr';
+import { toLocalISODate, fromISODate, formatDate, addDays } from '../utils/dateUtils';
 
 interface TicketFormData {
     visitDate: string | null;
@@ -31,9 +31,8 @@ export function TicketPurchasePage() {
         const availabilityData = JSON.parse(ticketService.getAvaibilityDays() || '{}');
 
         for (let i = 0; i < maxDays; i++) {
-            const date = new Date(today);
-            date.setDate(today.getDate() + i);
-            const dateStr = date.toISOString().split('T')[0];
+            const date = addDays(today, i);
+            const dateStr = toLocalISODate(date);
 
             // Verificar si el parque está abierto
             if (availabilityData[dateStr]) {
@@ -93,7 +92,8 @@ export function TicketPurchasePage() {
                     ticketType: data.ticketType,
                     paymentMethod: data.paymentMethod,
                     totalAmount: calcularTotal(ticketCount, ticketType, visitorAges.slice(0, validTicketCount)),
-                    reservationCode: purchaseCode
+                    reservationCode: purchaseCode,
+                    ts: new Date().toLocaleString()
                 });
 
                 // Send confirmation email
@@ -153,13 +153,15 @@ export function TicketPurchasePage() {
     };
 
     const isDateDisabled = (date: string) => {
-        const parsedDate = new Date(date);
+        const parsedDate = fromISODate(date);
+        if (!parsedDate) return true;
+
         const day = parsedDate.getDay();
         const month = parsedDate.getMonth();
         const dayOfMonth = parsedDate.getDate();
 
-        // Cerrado los lunes (0)
-        if (day === 0) return true;
+        // Cerrado los lunes (1)
+        if (day === 1) return true;
 
         // Cerrado en Navidad y Año Nuevo
         if ((month === 11 && dayOfMonth === 25) || (month === 0 && dayOfMonth === 1))
@@ -226,7 +228,7 @@ export function TicketPurchasePage() {
                                                     label="Cantidad de entradas"
                                                     min={1}
                                                     max={10}
-                                                    description="Máximo 10 entradas por persona"
+                                                    description="Máximo 10 entradas por compra"
                                                     error={errors.ticketCount?.message}
                                                     required
                                                     w={isMobile ? '100%' : 'auto'}
@@ -459,7 +461,7 @@ export function TicketPurchasePage() {
                     <Stack gap="md" align="center">
                         <Text size="lg" ta="center">Has reservado:</Text>
                         <Text fw={500}>{ticketCount} entrada{ticketCount > 1 ? 's' : ''} {ticketType.toUpperCase()}</Text>
-                        <Text>Para el día {createDateFromStr(watch('visitDate'))?.toLocaleDateString()}</Text>
+                        <Text>Para el día {formatDate(fromISODate(watch('visitDate')))}</Text>
                         <Text size="sm" c="dimmed" ta='center' mt="md">
                             Te hemos enviado un correo electrónico con los detalles para realizar el pago en boletería.
                         </Text>
@@ -498,7 +500,7 @@ export function TicketPurchasePage() {
                     <Stack gap="md" align="center">
                         <Text size="lg" ta="center">Has seleccionado:</Text>
                         <Text fw={500}>{ticketCount} entrada{ticketCount > 1 ? 's' : ''} {ticketType.toUpperCase()}</Text>
-                        <Text>Para el día {createDateFromStr(watch('visitDate'))?.toLocaleDateString()}</Text>
+                        <Text>Para el día {formatDate(fromISODate(watch('visitDate')))}</Text>
                         <Text fw={700}>Total: ${calcularTotal(validTicketCount, ticketType, visitorAges.slice(0, validTicketCount)).toLocaleString('es-AR')}</Text>
                         <Text size="sm" c="dimmed" ta='center' mt="md">
                             Te hemos redirigido a Mercado Pago para completar tu pago.

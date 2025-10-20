@@ -14,6 +14,7 @@ export function AuthPage() {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [loginError, setLoginError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -65,35 +66,40 @@ export function AuthPage() {
       return;
     }
 
-    if (isLogin) {
-      const result = userService.login(email, password);
-      if (result.success) {
-        setEmail('');
-        setPassword('');
-        navigate('/');
+    setIsSubmitting(true);
+    try {
+      if (isLogin) {
+        const result = await userService.login(email, password);
+        if (result.success) {
+          setEmail('');
+          setPassword('');
+          navigate('/');
+        } else {
+          setLoginError('Email o contraseña incorrectos');
+        }
       } else {
-        setLoginError('Email o contraseña incorrectos');
+        const result = await userService.registerUser(email, password);
+        if (result.success) {
+          setEmail('');
+          setPassword('');
+          notifications.show({
+            title: 'Registro exitoso',
+            message: 'Usuario registrado correctamente',
+            color: 'brand',
+            position: 'top-center'
+          });
+          navigate('/login');
+        } else {
+          notifications.show({
+            title: 'Error',
+            message: result.error || 'Error al registrar usuario',
+            color: 'red',
+            position: 'top-center'
+          });
+        }
       }
-    } else {
-      const result = userService.registerUser(email, password);
-      if (result.success) {
-        setEmail('');
-        setPassword('');
-        notifications.show({
-          title: 'Registro exitoso',
-          message: 'Usuario registrado correctamente',
-          color: 'brand',
-          position: 'top-center'
-        });
-        navigate('/login');
-      } else {
-        notifications.show({
-          title: 'Error',
-          message: result.error || 'Error al registrar usuario',
-          color: 'red',
-          position: 'top-center'
-        });
-      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -157,7 +163,14 @@ export function AuthPage() {
         {isLogin && loginError && (
           <Alert mt="xl" variant="light" color="red" title="Email o contraseña incorrectos" icon={<IconInfoCircle />} />
         )}
-        <Button fullWidth mt="xl" variant='gradient' type="submit">
+        <Button 
+          fullWidth 
+          mt="xl" 
+          variant='gradient' 
+          type="submit" 
+          loading={isSubmitting}
+          disabled={isSubmitting}
+        >
           {isLogin ? 'Iniciar sesión' : 'Registrarse'}
         </Button>
       </Paper>

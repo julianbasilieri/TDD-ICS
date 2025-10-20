@@ -1,4 +1,4 @@
-interface Transaction {
+export interface Transaction {
     id: string;
     email: string;
     visitDate: string;
@@ -6,13 +6,14 @@ interface Transaction {
     ticketType: string;
     paymentMethod: string;
     totalAmount: number;
-    reservationCode?: string;  // Opcional, solo para pagos en efectivo
+    reservationCode?: string;
+    ts: string;
 }
 
 export const transactionService = {
     saveTransaction: (transaction: Omit<Transaction, 'id'>) => {
         const transactions: Transaction[] = JSON.parse(localStorage.getItem('transactions') || '[]');
-        
+
         const newTransaction: Transaction = {
             ...transaction,
             id: crypto.randomUUID(),
@@ -23,7 +24,7 @@ export const transactionService = {
         return newTransaction;
     },
 
-    getTransactions: () => {
-        return JSON.parse(localStorage.getItem('transactions') || '[]') as Transaction[];
+    getAllTransactions: (): Transaction[] => {
+        return JSON.parse(localStorage.getItem('transactions') || '[]');
     }
 };

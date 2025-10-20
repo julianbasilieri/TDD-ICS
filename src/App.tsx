@@ -9,6 +9,8 @@ import { userService } from './services/userService';
 import { ticketService } from './services/ticketService';
 import './App.css'
 import '@mantine/dates/styles.css';
+import { TransactionsPage } from './pages/TransactionsPage';
+import { ProtectedRouteAdmin } from './components/ProtectedRouteAdmin';
 
 function App() {
   useEffect(() => {
@@ -23,13 +25,21 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<AuthPage />} />
         <Route path="/registro" element={<AuthPage />} />
-        <Route 
-          path="/tickets" 
+        <Route
+          path="/tickets"
           element={
             <ProtectedRoute>
               <TicketPurchasePage />
             </ProtectedRoute>
-          } 
+          }
+        />
+        <Route
+          path="/transacciones"
+          element={
+            <ProtectedRouteAdmin>
+              <TransactionsPage />
+            </ProtectedRouteAdmin>
+          }
         />
       </Routes>
     </Router>
