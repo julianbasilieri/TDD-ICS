@@ -14,6 +14,10 @@ export default defineConfig({
         'node_modules/',
         'test/setupTests.ts',
       ],
+      include: [
+        'src/services',
+        'src/utils'
+      ]
     },
   },
 })

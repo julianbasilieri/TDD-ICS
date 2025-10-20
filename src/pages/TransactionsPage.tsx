@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Container, Title, Text, Tabs, Paper, Badge, Stack, Divider, Group, Card } from '@mantine/core';
 import { transactionService, type Transaction } from '../services/transactionService';
 import { IconCash, IconCreditCard, IconCalendar, IconTicket, IconReceipt, IconShoppingBag, IconMail } from '@tabler/icons-react';
-import { createDateFromStr } from '../utils/dateStr';
+import { createDateFromStr } from '../utils/dateUtils';
 
 export function TransactionsPage() {
     const [transactions, setTransactions] = useState<Transaction[]>([]);

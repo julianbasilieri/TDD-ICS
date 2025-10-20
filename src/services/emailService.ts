@@ -1,5 +1,5 @@
 import emailjs from '@emailjs/browser';
-import { createDateFromStr } from '../utils/dateStr';
+import { createDateFromStr } from '../utils/dateUtils';
 
 const ENV = import.meta.env
 
@@ -56,7 +56,6 @@ export const emailService = {
                 selectedTemplate = ENV.VITE_EMAILJS_TEMPLATE_ID_MERCADOPAGO;
             }
 
-            // Envío del correo
             await emailjs.send(
                 ENV.VITE_EMAILJS_SERVICE_ID,
                 selectedTemplate,

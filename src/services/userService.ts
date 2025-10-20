@@ -1,4 +1,6 @@
-interface User {
+import bcrypt from 'bcryptjs';
+
+export interface User {
   email: string;
   password: string;
 }
@@ -14,7 +16,7 @@ export const userService = {
         // Inicializar con contraseñas encriptadas para datos iniciales
         const usersWithEncryptedPasswords = await Promise.all(data.users.map(async (user: User) => ({
           ...user,
-          password: await encryptPassword(user.password)
+          password: await bcrypt.hash(user.password, 10)
         })));
         
         localStorage.setItem('users', JSON.stringify(usersWithEncryptedPasswords));
@@ -34,8 +36,8 @@ export const userService = {
         return { success: false, error: 'El usuario ya existe' };
       }
 
-      // Encriptar la contraseña antes de almacenarla
-      const hashedPassword = await encryptPassword(password);
+      // Encriptar la contraseña antes de almacenarla (bcrypt con salt)
+      const hashedPassword = await bcrypt.hash(password, 10);
       
       users.push({ email, password: hashedPassword });
       localStorage.setItem('users', JSON.stringify(users));
@@ -50,13 +52,12 @@ export const userService = {
   login: async (email: string, password: string) => {
     try {
       const users = JSON.parse(localStorage.getItem('users') || '[]');
-      
-      // Encriptar la contraseña proporcionada para compararla
-      const hashedPassword = await encryptPassword(password);
-      
-      const user = users.find((u: User) => u.email === email && u.password === hashedPassword);
-      
+      const user = users.find((u: User) => u.email === email);
       if (!user) {
+        return { success: false, error: 'Credenciales inválidas' };
+      }
+      const valid = await bcrypt.compare(password, user.password);
+      if (!valid) {
         return { success: false, error: 'Credenciales inválidas' };
       } 
 
@@ -83,22 +84,3 @@ export const userService = {
     return JSON.parse(localStorage.getItem('users') || '[]');
   }
 };
-
-/**
- * Encripta una contraseña usando SHA-256
- * @param password Contraseña en texto plano
- * @returns Contraseña encriptada como string hexadecimal
- */
-async function encryptPassword(password: string): Promise<string> {
-  // Convertir la contraseña a un array de bytes
-  const msgBuffer = new TextEncoder().encode(password);
-  
-  // Crear un hash SHA-256
-  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-  
-  // Convertir el ArrayBuffer a string hexadecimal
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  
-  return hashHex;
-}

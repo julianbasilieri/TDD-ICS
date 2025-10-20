@@ -96,7 +96,7 @@ export function TicketPurchasePage() {
                     ts: new Date().toLocaleString()
                 });
 
-                // Send confirmation email
+                // Enviar mail de confirmacion
                 await emailService.sendPurchaseConfirmation({
                     email: currentUser?.email,
                     transactionId: transaction.id,

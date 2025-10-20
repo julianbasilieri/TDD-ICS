@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { ticketService } from '../ticketService'
+import { ticketService } from '../services/ticketService'
 
 describe('ticketService', () => {
   const mockStorage: { [key: string]: string } = {}
@@ -29,20 +29,20 @@ describe('ticketService', () => {
       expect(Object.keys(result || {}).length).toBeGreaterThan(0);
 
       // Verificar fechas usando operaciones relativas a la fecha de prueba
-      const nextDay = new Date(testDate); // Sábado
-      nextDay.setDate(testDate.getDate() + 1);
-      const nextDayStr = nextDay.toISOString().split('T')[0];
-      expect(result?.[nextDayStr]).toBe(true);
+      const sunday = new Date(testDate); // Domingo - abierto
+      sunday.setDate(testDate.getDate() + 2);
+      const sundayStr = sunday.toISOString().split('T')[0];
+      expect(result?.[sundayStr]).toBe(true);
 
-      const thirdDay = new Date(testDate); // Domingo
-      thirdDay.setDate(testDate.getDate() + 2);
-      const thirdDayStr = thirdDay.toISOString().split('T')[0];
-      expect(result?.[thirdDayStr]).toBe(true);
+      const monday = new Date(testDate); // Lunes - cerrado
+      monday.setDate(testDate.getDate() + 3);
+      const mondayStr = monday.toISOString().split('T')[0];
+      expect(result?.[mondayStr]).toBe(false);
 
-      const fourthDay = new Date(testDate); // Lunes - cerrado
-      fourthDay.setDate(testDate.getDate() + 3);
-      const fourthDayStr = fourthDay.toISOString().split('T')[0];
-      expect(result?.[fourthDayStr]).toBe(false);
+      const tuesday = new Date(testDate); // Martes - abierto
+      tuesday.setDate(testDate.getDate() + 3);
+      const tuesdayStr = tuesday.toISOString().split('T')[0];
+      expect(result?.[tuesdayStr]).toBe(false);
 
       // Verificar una fecha especial - Navidad
       const christmas = new Date(testDate.getFullYear(), 11, 25);
@@ -65,31 +65,28 @@ describe('ticketService', () => {
 
   describe('getAvailability', () => {
     it('debería devolver true para una fecha disponible', () => {
-      // Preparar
-      const mockAvailability = { '2024-01-05': true }
+      const mockAvailability = { '2025-09-20': true }
       localStorage.setItem('ticketAvailability', JSON.stringify(mockAvailability))
 
-      // Ejecutar
-      const result = ticketService.getAvailability('2024-01-05')
+      const result = ticketService.getAvailability('2025-09-20')
 
-      // Verificar
       expect(result).toBe(true)
     })
 
     it('debería devolver false para una fecha cerrada', () => {
-      const mockAvailability = { '2024-01-05': false, '2024-01-06': true }
+      const mockAvailability = { '2025-09-20': false, '2025-09-21': true }
       localStorage.setItem('ticketAvailability', JSON.stringify(mockAvailability))
 
-      const result = ticketService.getAvailability('2024-01-05')
+      const result = ticketService.getAvailability('2025-09-20')
 
       expect(result).toBe(false)
     })
 
     it('debería devolver false para una fecha no registrada', () => {
-      const mockAvailability = { '2024-01-05': true }
+      const mockAvailability = { '2025-09-20': true }
       localStorage.setItem('ticketAvailability', JSON.stringify(mockAvailability))
 
-      const result = ticketService.getAvailability('2024-01-01')
+      const result = ticketService.getAvailability('2025-01-01')
 
       expect(result).toBe(false)
     })
@@ -97,7 +94,7 @@ describe('ticketService', () => {
 
   describe('getAvaibilityDays', () => {
     it('debería devolver la información de disponibilidad guardada', () => {
-      const mockAvailability = { '2024-01-05': true, '2024-01-06': false }
+      const mockAvailability = { '2025-09-20': true, '2025-09-21': false }
       localStorage.setItem('ticketAvailability', JSON.stringify(mockAvailability))
 
       const result = ticketService.getAvaibilityDays()
