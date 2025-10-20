@@ -1,7 +1,7 @@
 export const calcularPrecioPorTicket = (type: 'vip' | 'regular', edad: number): number => {
     // Validar la edad primero
-    if (edad < 0 || edad > 99) {
-        return -1; // Código de error para edad inválida
+    if (edad < 0 || edad > 110) {
+        return 0;
     }
 
     const precioBase = type === 'vip' ? 10000 : 5000;

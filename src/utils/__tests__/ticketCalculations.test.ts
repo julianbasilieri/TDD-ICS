@@ -29,11 +29,11 @@ describe('ticketCalculations', () => {
             // 60 años (descuento)
             expect(calcularPrecioPorTicket('regular', 60)).toBe(2500)
 
-            // 99 años (descuento)
-            expect(calcularPrecioPorTicket('vip', 99)).toBe(5000)
+            // 110 años (descuento)
+            expect(calcularPrecioPorTicket('vip', 110)).toBe(5000)
 
-            // 100 años (error)
-            expect(calcularPrecioPorTicket('regular', 100)).toBe(-1)
+            // 111 años (error)
+            expect(calcularPrecioPorTicket('regular', 111)).toBe(-1)
         })
     })
 
