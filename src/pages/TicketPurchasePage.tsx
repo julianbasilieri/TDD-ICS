@@ -264,7 +264,7 @@ export function TicketPurchasePage() {
                                                                     rules={{
                                                                         required: 'Edad requerida',
                                                                         min: { value: 0, message: 'Edad mínima 0' },
-                                                                        max: { value: 99, message: 'Edad máxima 99' }
+                                                                        max: { value: 110, message: 'Edad máxima 110' }
                                                                     }}
                                                                     render={({ field }) => (
                                                                         <NumberInput
@@ -272,7 +272,7 @@ export function TicketPurchasePage() {
                                                                             label={`Visitante ${index + 1}`}
                                                                             placeholder="Edad"
                                                                             min={0}
-                                                                            max={99}
+                                                                            max={110}
                                                                             value={field.value ?? null}
                                                                             defaultValue={undefined}
                                                                             error={errors.visitorAges?.[index]?.message}
