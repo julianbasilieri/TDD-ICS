@@ -13,17 +13,12 @@
 }
 
 .logo {
-  max-height: 40px;
+  height: 40px;
   width: auto;
-}
-
-.logo {
-  height: 40px; /* ajustá según el alto de tu navbar */
-  width: auto; /* mantiene la proporción */
   object-fit: contain;
   transition: transform 0.2s ease;
 }
 
 .logo:hover {
-  transform: scale(1.05); /* pequeño efecto al pasar el mouse */
+  transform: scale(1.05);
 }

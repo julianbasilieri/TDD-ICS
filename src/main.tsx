@@ -2,11 +2,10 @@ import React from 'react'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { MantineProvider, createTheme } from '@mantine/core'
-import './index.css'
-import App from './App.tsx'
 import '@mantine/core/styles.css'
-import { Notifications } from '@mantine/notifications'
 import '@mantine/notifications/styles.css';
+import App from './App.tsx'
+import { Notifications } from '@mantine/notifications'
 import '@fontsource/montserrat'
 
 const theme = createTheme({

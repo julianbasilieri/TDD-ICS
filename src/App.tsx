@@ -7,7 +7,6 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { useEffect } from 'react';
 import { userService } from './services/userService';
 import { ticketService } from './services/ticketService';
-import './App.css'
 import '@mantine/dates/styles.css';
 import { TransactionsPage } from './pages/TransactionsPage';
 import { ProtectedRouteAdmin } from './components/ProtectedRouteAdmin';
