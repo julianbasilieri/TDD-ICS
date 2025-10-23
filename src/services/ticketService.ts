@@ -1,4 +1,4 @@
-import { toLocalISODate, addDays } from '../utils/dateUtils';
+import { toLocalISODate, addDays, diasHastaMismoDiaDelProximoMes } from '../utils/dateUtils';
 
 interface TicketAvailability {
     [date: string]: boolean;
@@ -9,9 +9,10 @@ export const ticketService = {
         if (!localStorage.getItem('ticketAvailability')) {
             const availability: TicketAvailability = {};
             const today = baseDate || new Date();
+            const diasCount = diasHastaMismoDiaDelProximoMes(today)
 
             // Generar fechas para el próximo mes
-            for (let i = 0; i < 31; i++) {
+            for (let i = 0; i <= diasCount; i++) {
                 const date = addDays(today, i);
                 const day = date.getDay();
                 const month = date.getMonth();

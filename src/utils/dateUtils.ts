@@ -43,3 +43,28 @@ export const createDateFromStr = (dateStr: string | null): Date | null => {
   return new Date(year, month, day);
 };
 
+export function diasHastaMismoDiaDelProximoMes(fecha: Date = new Date()): number {
+  const dia = fecha.getDate();
+  const mesActual = fecha.getMonth();
+  const anio = fecha.getFullYear();
+
+  // Crear una fecha para el mismo día del mes siguiente
+  const proximoMes = new Date(anio, mesActual + 1, dia);
+
+  // Si el mes siguiente no tiene ese día (por ejemplo, 31/01 → 28/02),
+  // JavaScript ajusta la fecha automáticamente al siguiente mes,
+  // por lo que la corregimos para que sea el último día del mes.
+  if (proximoMes.getMonth() !== (mesActual + 1) % 12) {
+    // Último día del próximo mes
+    const ultimoDiaProximoMes = new Date(anio, mesActual + 2, 0);
+    proximoMes.setDate(ultimoDiaProximoMes.getDate());
+  }
+
+  // Calcular la diferencia en milisegundos
+  const diferenciaMs = proximoMes.getTime() - fecha.getTime();
+
+  // Convertir a días
+  const dias = Math.ceil(diferenciaMs / (1000 * 60 * 60 * 24));
+
+  return dias;
+}
