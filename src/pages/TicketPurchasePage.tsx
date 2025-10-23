@@ -110,7 +110,9 @@ export function TicketPurchasePage() {
 
                 if (data.paymentMethod === 'credit') {
                     setShowSuccessCredit(true);
-                    handleCreditCardPayment();
+                    setTimeout(() => {
+                        handleCreditCardPayment();
+                    }, 1000);
                 } else {
                     setShowSuccessCash(true);
                 }
