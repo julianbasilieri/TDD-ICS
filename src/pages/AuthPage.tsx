@@ -130,6 +130,7 @@ export function AuthPage() {
         <TextInput
           label="Email"
           placeholder="tu@email.com"
+          name='email'
           required
           value={email}
           onChange={(e) => {
@@ -142,6 +143,7 @@ export function AuthPage() {
           label="Contraseña"
           placeholder="Tu contraseña"
           required
+          name='password'
           mt="md"
           value={password}
           onChange={(e) => {
@@ -163,11 +165,11 @@ export function AuthPage() {
         {isLogin && loginError && (
           <Alert mt="xl" variant="light" color="red" title="Email o contraseña incorrectos" icon={<IconInfoCircle />} />
         )}
-        <Button 
-          fullWidth 
-          mt="xl" 
-          variant='gradient' 
-          type="submit" 
+        <Button
+          fullWidth
+          mt="xl"
+          variant='gradient'
+          type="submit"
           loading={isSubmitting}
           disabled={isSubmitting}
         >
