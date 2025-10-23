@@ -1,18 +1,18 @@
 import { Container, Text, Group, ActionIcon, Stack, Divider, Anchor, Box, Grid } from '@mantine/core';
-import { 
-  IconBrandFacebook, 
-  IconBrandTwitter, 
-  IconBrandInstagram, 
-  IconBrandYoutube, 
-  IconBrandTiktok, 
-  IconMail, 
-  IconPhone, 
-  IconMapPin 
+import {
+  IconBrandFacebook,
+  IconBrandTwitter,
+  IconBrandInstagram,
+  IconBrandYoutube,
+  IconBrandTiktok,
+  IconMail,
+  IconPhone,
+  IconMapPin
 } from '@tabler/icons-react';
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
-  
+
   return (
     <Box component="footer" bg="gray.8" c="white" py="xl" mt={40} bottom={0}>
       <Container size="xl">
@@ -21,7 +21,7 @@ export function Footer() {
             <Stack gap="xs">
               <Text fw={700} size="lg">EcoHarmony Park</Text>
               <Text size="sm">El mejor lugar para vivir experiencias inolvidables con toda la familia.</Text>
-              
+
               <Group gap="xs" mt="md">
                 <ActionIcon variant="subtle" c="white" size="lg">
                   <IconBrandFacebook size={24} />
@@ -41,7 +41,7 @@ export function Footer() {
               </Group>
             </Stack>
           </Grid.Col>
-          
+
           <Grid.Col span={{ base: 12, md: 4 }}>
             <Stack gap="xs">
               <Text fw={700} mb="xs">Enlaces útiles</Text>
@@ -52,7 +52,7 @@ export function Footer() {
               <Anchor c="white" component="a" href="/" underline="hover">Contacto</Anchor>
             </Stack>
           </Grid.Col>
-          
+
           <Grid.Col span={{ base: 12, md: 4 }}>
             <Stack gap="xs">
               <Text fw={700} mb="xs">Contáctanos</Text>
@@ -72,9 +72,9 @@ export function Footer() {
             </Stack>
           </Grid.Col>
         </Grid>
-        
+
         <Divider my="lg" color="gray.7" />
-        
+
         <Group justify="space-between" wrap="wrap">
           <Text size="xs">© {currentYear} EcoHarmony Park. Todos los derechos reservados.</Text>
           <Group gap="md" wrap="nowrap">

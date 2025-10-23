@@ -22,8 +22,3 @@ const localStorageMock = {
 Object.defineProperty(window, 'localStorage', {
   value: localStorageMock
 })
-
-// Mock random para códigos de reserva consistentes
-vi.mock('crypto', () => ({
-  randomUUID: () => '123e4567-e89b-12d3-a456-426614174000'
-}))

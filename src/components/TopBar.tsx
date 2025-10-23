@@ -25,7 +25,7 @@ export function TopBar() {
     setCurrentUser(null);
     navigate('/');
   };
-  
+
   // Nueva función para limpiar localStorage y recargar la página
   const handleClearLocalStorage = () => {
     localStorage.clear();

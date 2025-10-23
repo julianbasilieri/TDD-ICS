@@ -13,19 +13,19 @@ describe('ticketCalculations', () => {
 
             // 3 años (gratis)
             expect(calcularPrecioPorTicket('vip', 3)).toBe(0)
-            
+
             // 4 años (descuento)
             expect(calcularPrecioPorTicket('regular', 4)).toBe(2500)
-            
+
             // 15 años (descuento)
             expect(calcularPrecioPorTicket('vip', 15)).toBe(5000)
-            
+
             // 16 años (precio completo)
             expect(calcularPrecioPorTicket('regular', 16)).toBe(5000)
-            
+
             // 59 años (precio completo)
             expect(calcularPrecioPorTicket('vip', 59)).toBe(10000)
-            
+
             // 60 años (descuento)
             expect(calcularPrecioPorTicket('regular', 60)).toBe(2500)
 
