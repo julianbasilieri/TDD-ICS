@@ -84,10 +84,6 @@ export const emailService = {
                 selectedTemplate = ENV.VITE_EMAILJS_TEMPLATE_ID_MERCADOPAGO;
             }
 
-            console.log(qrCodeDataUri)
-
-            console.log(ENV.VITE_ENVIO_MAIL)
-
             if (ENV.VITE_ENVIO_MAIL) {
                 await emailjs.send(
                     ENV.VITE_EMAILJS_SERVICE_ID,
