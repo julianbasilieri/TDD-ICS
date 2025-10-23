@@ -26,7 +26,7 @@ describe('transactionService', () => {
     vi.stubGlobal('localStorage', mockLocalStorage)
   })
 
-  describe('saveTransaction', () => {
+  describe('guardar transacción', () => {
     it('debería guardar la transacción', () => {
       transactionService.saveTransaction(mockTransaction);
 
@@ -36,7 +36,7 @@ describe('transactionService', () => {
     });
   });
 
-  describe('getAllTransactions', () => {
+  describe('obtener transacciones', () => {
     it('debería devolver transacciones guardadas', () => {
       const mockData: Transaction[] = [
         { ...mockTransaction, id: 'test-id-1', ts: '2025-09-20T12:00:00Z' }

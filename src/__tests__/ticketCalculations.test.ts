@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import { calcularPrecioPorTicket, calcularTotal } from '../utils/ticketCalculations'
 
-describe('ticketCalculations', () => {
-    describe('calcularPrecioPorTicket', () => {
+describe('calculo de tickets', () => {
+    describe('calcular precio por ticket', () => {
         // Casos limite
         it('debería manejar valores límite correctamente', () => {
             // Edad negativa (error)
@@ -37,7 +37,7 @@ describe('ticketCalculations', () => {
         })
     })
 
-    describe('calcularTotal', () => {
+    describe('calcular total', () => {
         it('debería calcular correctamente el total para 1 entrada regular adulto', () => {
             expect(calcularTotal(1, 'regular', [30])).toBe(5000)
         })

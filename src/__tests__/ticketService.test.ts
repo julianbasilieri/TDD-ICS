@@ -16,7 +16,7 @@ describe('ticketService', () => {
     vi.stubGlobal('localStorage', mockLocalStorage)
   })
 
-  describe('initializeAvailability', () => {
+  describe('inicializar disponibilidad', () => {
     it('debería inicializar correctamente la disponibilidad para el próximo mes', () => {
       // Crear una fecha fija para la prueba (12 de diciembre de 2025, viernes)
       const testDate = new Date(2025, 11, 12);
@@ -63,7 +63,7 @@ describe('ticketService', () => {
     });
   })
 
-  describe('getAvailability', () => {
+  describe('obtener disponibilidad', () => {
     it('debería devolver true para una fecha disponible', () => {
       const mockAvailability = { '2025-09-20': true }
       localStorage.setItem('ticketAvailability', JSON.stringify(mockAvailability))
@@ -92,7 +92,7 @@ describe('ticketService', () => {
     })
   })
 
-  describe('getAvaibilityDays', () => {
+  describe('obtener dias disponibles', () => {
     it('debería devolver la información de disponibilidad guardada', () => {
       const mockAvailability = { '2025-09-20': true, '2025-09-21': false }
       localStorage.setItem('ticketAvailability', JSON.stringify(mockAvailability))

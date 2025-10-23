@@ -16,8 +16,8 @@ describe('userService', () => {
     vi.stubGlobal('localStorage', mockLocalStorage)
   })
 
-  describe('registerUser', () => {
-    it('should not register a duplicate user', async () => {
+  describe('registrar usuario', () => {
+    it('debería no registrar un usuario ya registrado', async () => {
       await userService.registerUser('test@example.com', 'password123');
 
       const result = await userService.registerUser('test@example.com', 'password123');
@@ -27,8 +27,8 @@ describe('userService', () => {
     });
   });
 
-  describe('login', () => {
-    it('should login successfully with valid credentials', async () => {
+  describe('iniciar sesión', () => {
+    it('deberia registrar usuario e iniciar sesión correctamente con credenciales validas', async () => {
       await userService.registerUser('test@example.com', 'password123');
 
       const result = await userService.login('test@example.com', 'password123');
