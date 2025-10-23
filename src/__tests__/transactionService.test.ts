@@ -32,7 +32,8 @@ describe('transactionService', () => {
 
       const storedData = transactionService.getAllTransactions()
 
-      expect(storedData[0].email).toBe(mockTransaction.email);
+      const { id, ...storedDataWithoutId } = storedData[0];
+      expect(storedDataWithoutId).toEqual(mockTransaction);
     });
   });
 
