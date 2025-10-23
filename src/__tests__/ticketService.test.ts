@@ -40,9 +40,9 @@ describe('ticketService', () => {
       expect(result?.[mondayStr]).toBe(false);
 
       const tuesday = new Date(testDate); // Martes - abierto
-      tuesday.setDate(testDate.getDate() + 3);
+      tuesday.setDate(testDate.getDate() + 4);
       const tuesdayStr = tuesday.toISOString().split('T')[0];
-      expect(result?.[tuesdayStr]).toBe(false);
+      expect(result?.[tuesdayStr]).toBe(true);
 
       // Verificar una fecha especial - Navidad
       const christmas = new Date(testDate.getFullYear(), 11, 25);
